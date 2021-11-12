@@ -1,5 +1,6 @@
 import nltk
 import numpy as np
+import textstat
 from nltk.stem import WordNetLemmatizer
 wnl = WordNetLemmatizer()
 
@@ -15,6 +16,9 @@ sentences = nltk.sent_tokenize(text)
 state_d = 0
 total = 0
 for sent in sentences:
+    noun_count = 0
+    adj_count = 0
+    pre_count = 0
     has_system_state = False
     has_noun_before_shall = False
     has_shall = False
@@ -47,10 +51,24 @@ for sent in sentences:
                                         for k in range(j+1, len(tokens), 1):
                                             if nltk.pos_tag([tokens[k]])[0][1] == 'VB':
                                                 has_verb_after_shall = True
+        if nltk.pos_tag([tokens[i]])[0][1] == 'NN':
+            noun_count += 1
+        elif nltk.pos_tag([tokens[i]])[0][1] == 'ADJ':
+            adj_count += 1
+        elif nltk.pos_tag([tokens[i]])[0][1] == 'IN':
+            pre_count += 1
     if (has_system_state and has_noun_before_shall and has_shall and has_verb_after_shall):
         state_d += 1
         
     total += 1
+    word_count = textstat.lexicon_count(sent, removepunct=True)
+    print('>--------------------------------------------------------------------------<')
+    print('Statement: ' + sent)
+    print('Number of Words: ' + str(word_count))
+    print('Number of Adjectives: ' + str(adj_count))
+    print('Number of Nouns: ' + str(noun_count))
+    print('Proportion of Prepositions (%): ' + str((pre_count/word_count) * 100))
+    print('Automated Readability Assessment: ' + str(textstat.automated_readability_index(sent)))
 
 print('Total State-driven statements: ' + str(state_d) + '\n')
 print('Total statements: ' + str(total) + '\n')

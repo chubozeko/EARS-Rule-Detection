@@ -1,5 +1,8 @@
 import nltk
 import numpy as np
+import textstat
+from nltk.stem import WordNetLemmatizer
+wnl = WordNetLemmatizer()
 
 print("<---------------------------------->")
 
@@ -12,9 +15,11 @@ print("EARS Rule: Ubiquitous")
 sentences = nltk.sent_tokenize(text)
 ubi = 0
 total = 0
+
 for sent in sentences:
-    # has_the = False
-    # has_noun_after_the = False
+    noun_count = 0
+    adj_count = 0
+    pre_count = 0
     has_noun_before_shall = False
     has_shall = False
     has_verb_after_shall = False
@@ -28,10 +33,25 @@ for sent in sentences:
             for k in range(i+1, len(tokens), 1):
                 if nltk.pos_tag([tokens[k]])[0][1] == 'VB':
                     has_verb_after_shall = True
-    if (has_noun_before_shall and has_shall and has_verb_after_shall):
+        if nltk.pos_tag([tokens[i]])[0][1] == 'NN':
+            noun_count += 1
+        elif nltk.pos_tag([tokens[i]])[0][1] == 'ADJ':
+            adj_count += 1
+        elif nltk.pos_tag([tokens[i]])[0][1] == 'IN':
+            pre_count += 1
+    if (has_noun_before_shall and has_shall and has_verb_after_shall): 
         ubi += 1
         
     total += 1
+    word_count = textstat.lexicon_count(sent, removepunct=True)
+    print('>--------------------------------------------------------------------------<')
+    print('Statement: ' + sent)
+    print('Number of Words: ' + str(word_count))
+    print('Number of Adjectives: ' + str(adj_count))
+    print('Number of Nouns: ' + str(noun_count))
+    print('Proportion of Prepositions (%): ' + str((pre_count/word_count) * 100))
+    print('Automated Readability Assessment: ' + str(textstat.automated_readability_index(sent)))
 
+print('<-------------------------------------------------------------------------->')
 print('Total Ubiquitous statements: ' + str(ubi) + '\n')
 print('Total statements: ' + str(total) + '\n')

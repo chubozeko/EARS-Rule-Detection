@@ -1,0 +1,4 @@
+Python 3.9.8
+pip install numpy
+pip install nltk
+pip install textstat
